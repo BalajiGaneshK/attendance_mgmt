@@ -1,0 +1,24 @@
+{
+  "name": "attendance_mgmt",
+  "version": "1.0.0",
+  "description": "DDA Project submitted to Prof.Uma Maheshwari,BITS Plani,WILP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BalajiGaneshK/attendance_mgmt.git"
+  },
+  "keywords": [],
+  "author": "K.Balaji Ganesh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BalajiGaneshK/attendance_mgmt/issues"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  },
+  "homepage": "https://github.com/BalajiGaneshK/attendance_mgmt#readme"
+}
