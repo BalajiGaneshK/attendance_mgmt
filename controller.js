@@ -202,4 +202,22 @@ module.exports = {
       }
     });
   },
+  viewWeeklyLoggedHours: function (req, res) {
+    const { Manager_Id } = req.body;
+
+    // Calculate the date for one week ago from the current date
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    // Query the Attendance table to retrieve total logged hours for employees managed by the provided Manager_Id in the last 7 days
+    dao.getWeeklyLoggedHours(Manager_Id, oneWeekAgo, (weeklyLoggedHours) => {
+      if (weeklyLoggedHours && weeklyLoggedHours.length > 0) {
+        res.status(200).json(weeklyLoggedHours);
+      } else {
+        res
+          .status(404)
+          .json({ error: "No employees found for the provided Manager_Id" });
+      }
+    });
+  },
 };

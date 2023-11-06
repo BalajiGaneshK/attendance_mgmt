@@ -226,6 +226,25 @@ module.exports = {
       }
     });
   },
+  getWeeklyLoggedHours(Manager_Id, oneWeekAgo, callback) {
+    const query = `
+    SELECT Emp_Id, SUM(Logged_Hours) AS Total_Logged_Hours
+    FROM Attendance_Logs
+    WHERE Emp_Id IN (SELECT Emp_Id FROM Employee WHERE Manager_Id = ?)
+      AND Business_Date >= ?
+    GROUP BY Emp_Id`;
+    db.all(query, [Manager_Id, oneWeekAgo.toISOString()], (err, rows) => {
+      if (err) {
+        callback(null);
+      } else {
+        if (rows && rows.length > 0) {
+          callback(rows);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  },
 
   // Export other database-related functions
 };
