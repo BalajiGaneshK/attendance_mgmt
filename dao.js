@@ -192,9 +192,24 @@ module.exports = {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
-    const numberOfLeaveDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))+1;
+    const numberOfLeaveDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
     console.log("No of LeaveDays:", numberOfLeaveDays);
     return numberOfLeaveDays;
+  },
+  getReportees(Manager_Id, callback) {
+    const query =
+      "SELECT Emp_Id, Emp_Name, Total_Available_PL, Total_Available_SL, Total_Available_CL FROM Employee WHERE Manager_Id = ?";
+    db.all(query, [Manager_Id], (err, rows) => {
+      if (err) {
+        callback(null);
+      } else {
+        if (rows && rows.length > 0) {
+          callback(rows);
+        } else {
+          callback(null);
+        }
+      }
+    });
   },
 
   // Export other database-related functions

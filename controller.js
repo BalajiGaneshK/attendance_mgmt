@@ -86,13 +86,11 @@ module.exports = {
               }
             );
           } else {
-            res
-              .status(400)
-              .json({
-                error: "Insufficient leave balance",
-                "Leave Balance": leaveBalance,
-                "Applied Leave Days": appliedLeaveDays,
-              });
+            res.status(400).json({
+              error: "Insufficient leave balance",
+              "Leave Balance": leaveBalance,
+              "Applied Leave Days": appliedLeaveDays,
+            });
           }
         });
       } else {
@@ -166,6 +164,29 @@ module.exports = {
         }
       } else {
         res.status(404).json({ error: "Leave request not found" });
+      }
+    });
+  },
+  viewTeamLeaveBalances: function (req, res) {
+    const { Manager_Id } = req.body;
+
+    // Query the Employee table for employees managed by the provided Manager_Id
+    dao.getReportees(Manager_Id, (reportees) => {
+      if (reportees && reportees.length > 0) {
+        // Prepare a list of reportees and their leave balances
+        const reporteeBalances = reportees.map((reportee) => ({
+          Emp_Id: reportee.Emp_Id,
+          Emp_Name: reportee.Emp_Name,
+          Total_Available_PL: reportee.Total_Available_PL,
+          Total_Available_SL: reportee.Total_Available_SL,
+          Total_Available_CL: reportee.Total_Available_CL,
+        }));
+
+        res.status(200).json({ reporteeBalances });
+      } else {
+        res
+          .status(404)
+          .json({ error: "No reportees found for the provided Manager_Id" });
       }
     });
   },
