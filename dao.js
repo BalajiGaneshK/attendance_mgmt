@@ -34,5 +34,37 @@ module.exports = {
       }
     });
   },
+  loginEmployee: function (LoginData, callback) {
+    const loginQuery = `
+    INSERT INTO Attendance (Emp_Id, Login_DateTime, Logout_DateTime, Business_Date)
+    VALUES (?, ?, 0, ?)
+  `;
+    this.executeQuery(loginQuery, LoginData, (err) => {
+      if (err) {
+        console.error(err);
+        callback(err);
+      } else {
+        console.log("Successfully executed login query");
+        callback(null);
+      }
+    });
+  },
+  logoutEmployee: function (LogoutData, callback) {
+    const logoutQuery = `
+    UPDATE Attendance
+    SET Logout_DateTime = ? 
+    WHERE Emp_Id = ? AND Logout_DateTime = '0'
+  `;
+    this.executeQuery(logoutQuery, LogoutData, (err) => {
+      if (err) {
+        console.error(err);
+        throw { error: "Sign-out failed" };
+      } else {
+        console.log("Logout Successful", LogoutData);
+        callback(null);
+      }
+    });
+  },
+  
   // Export other database-related functions
 };

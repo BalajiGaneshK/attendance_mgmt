@@ -6,6 +6,8 @@ const controller = require("./Controller");
 
 // User routes
 router.post("/register", controller.registerEmployee);
+router.post("/login", controller.loginEmployee);
+router.post("/logout", controller.logoutEmployee);
 
 // Define other routes for class management, student management, attendance tracking, etc.
 
