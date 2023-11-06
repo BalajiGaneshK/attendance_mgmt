@@ -211,6 +211,21 @@ module.exports = {
       }
     });
   },
+  getEmployeeLeaveBalances(Emp_Id, callback) {
+    const query =
+      "SELECT Total_Available_PL, Total_Available_SL, Total_Available_CL FROM Employee WHERE Emp_Id = ?";
+    db.get(query, [Emp_Id], (err, row) => {
+      if (err) {
+        callback(null);
+      } else {
+        if (row) {
+          callback(row);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  },
 
   // Export other database-related functions
 };

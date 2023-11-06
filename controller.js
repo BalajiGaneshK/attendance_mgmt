@@ -190,4 +190,16 @@ module.exports = {
       }
     });
   },
+  viewEmployeeLeaveBalances: function (req, res) {
+    const { Emp_Id } = req.body;
+
+    // Query the Employee table to retrieve leave balances for the provided Emp_Id
+    dao.getEmployeeLeaveBalances(Emp_Id, (leaveBalances) => {
+      if (leaveBalances) {
+        res.status(200).json({ leaveBalances });
+      } else {
+        res.status(404).json({ error: "Employee not found" });
+      }
+    });
+  },
 };
