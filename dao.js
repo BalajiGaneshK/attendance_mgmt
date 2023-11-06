@@ -65,6 +65,66 @@ module.exports = {
       }
     });
   },
-  
+  getManagerId: function (Emp_Id, callback) {
+    const query = "SELECT Manager_Id FROM Employee WHERE Emp_Id = ?";
+    db.get(query, [Emp_Id], (err, result) => {
+      if (err) {
+        callback(err);
+      } else {
+        console.log(result);
+        if (result && result.Manager_Id) {
+          callback(result.Manager_Id);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  },
+  getLeaveBalance: function (Emp_Id, leaveBalanceColumn, callback) {
+    const query = `SELECT ${leaveBalanceColumn} FROM Employee WHERE Emp_Id = ?`;
+    db.get(query, [Emp_Id], (err, result) => {
+      if (err) {
+        callback(0);
+      } else {
+        console.log("LeaveBalance result:",result);
+        if (result) {
+          callback(result[leaveBalanceColumn]);
+        } else {
+          callback(0);
+        }
+      }
+    });
+  },
+  insertLeave: function (
+    Emp_Id,
+    Manager_Id,
+    Leave_Type,
+    Leave_Reason,
+    Leave_Start_Date,
+    Leave_End_Date,
+    callback
+  ) {
+    const query =
+      "INSERT INTO Leave (Emp_Id, Manager_Id, Leave_Type, Leave_Reason, Leave_Start_Date, Leave_End_Date) VALUES (?, ?, ?, ?, ?, ?)";
+    this.executeQuery(
+      query,
+      [
+        Emp_Id,
+        Manager_Id,
+        Leave_Type,
+        Leave_Reason,
+        Leave_Start_Date,
+        Leave_End_Date,
+      ],
+      (err) => {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null);
+        }
+      }
+    );
+  },
+
   // Export other database-related functions
 };
