@@ -141,6 +141,61 @@ module.exports = {
       }
     });
   },
+  updateLeaveBalance: function (
+    Emp_Id,
+    Leave_Type,
+    numberOfLeaveDays,
+    callback
+  ) {
+    // Implement the logic to update the total available leave balance
+    const leaveBalanceColumn =
+      Leave_Type === "SL" ? "Total_Available_SL" : "Total_Available_PL";
+    const query = `UPDATE Employee SET ${leaveBalanceColumn} = ${leaveBalanceColumn} - ? WHERE Emp_Id = ?`;
+
+    this.executeQuery(query, [numberOfLeaveDays, Emp_Id], (err) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null);
+      }
+    });
+  },
+  getLeaveInfo: function (Leave_Id, callback) {
+    const query =
+      "SELECT Leave_Type, Emp_Id,Manager_Id,Leave_Start_Date, Leave_End_Date FROM Leave WHERE Leave_Id = ?";
+    db.get(query, [Leave_Id], (err, row) => {
+      if (err) {
+        callback(null);
+      } else {
+        if (row) {
+          console.log("LeaveInfo:", row);
+          callback(row);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  },
+  approveLeave: function (Leave_Id, callback) {
+    const query =
+      'UPDATE Leave SET Approval_Status = "Approved" WHERE Leave_Id = ?';
+    this.executeQuery(query, [Leave_Id], (err) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null);
+      }
+    });
+  },
+  calculateLeaveDays: function (startDate, endDate) {
+    // Implement the logic to calculate the number of leave days
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const numberOfLeaveDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))+1;
+    console.log("No of LeaveDays:", numberOfLeaveDays);
+    return numberOfLeaveDays;
+  },
 
   // Export other database-related functions
 };

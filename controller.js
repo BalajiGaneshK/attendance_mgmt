@@ -60,9 +60,13 @@ module.exports = {
           leaveBalanceColumn = "Total_Available_CL";
         }
         console.log(leaveBalanceColumn);
+        let appliedLeaveDays = dao.calculateLeaveDays(
+          Leave_Start_Date,
+          Leave_End_Date
+        );
         // Check if the employee has enough leave balance
         dao.getLeaveBalance(Emp_Id, leaveBalanceColumn, (leaveBalance) => {
-          if (leaveBalance > 0) {
+          if (leaveBalance > appliedLeaveDays) {
             // Insert leave information into the Leave table
             dao.insertLeave(
               Emp_Id,
@@ -82,7 +86,13 @@ module.exports = {
               }
             );
           } else {
-            res.status(400).json({ error: "Insufficient leave balance" });
+            res
+              .status(400)
+              .json({
+                error: "Insufficient leave balance",
+                "Leave Balance": leaveBalance,
+                "Applied Leave Days": appliedLeaveDays,
+              });
           }
         });
       } else {
@@ -99,6 +109,63 @@ module.exports = {
         res.status(200).json({ leaveRequests });
       } else {
         res.status(404).json({ error: "No pending leave requests found" });
+      }
+    });
+  },
+  approveLeaveRequest: function (req, res) {
+    const { Leave_Id, Action, Manager_Id } = req.body;
+
+    // Fetch leave information based on Leave_Id
+    dao.getLeaveInfo(Leave_Id, (leaveInfo) => {
+      if (leaveInfo) {
+        const { Leave_Type, Emp_Id, Leave_Start_Date, Leave_End_Date } =
+          leaveInfo;
+        if (leaveInfo.Manager_Id !== Manager_Id)
+          return res.status(500).json({
+            "Access Error":
+              "You are not Approved to Approve this Leave Request",
+          });
+        if (Action === "Approve") {
+          // Update the Approval_Status to "Approved" in the Leave table
+          dao.approveLeave(Leave_Id, (error) => {
+            if (error) {
+              res
+                .status(500)
+                .json({ error: "Failed to approve/deny leave request" });
+            } else {
+              // Calculate the number of leave days
+              const numberOfLeaveDays = dao.calculateLeaveDays(
+                Leave_Start_Date,
+                Leave_End_Date
+              );
+
+              // Update the total available leave balance in the Employee table
+              dao.updateLeaveBalance(
+                Emp_Id,
+                Leave_Type,
+                numberOfLeaveDays,
+                (updateError) => {
+                  if (updateError) {
+                    res
+                      .status(500)
+                      .json({ error: "Failed to update leave balance" });
+                  } else {
+                    res
+                      .status(200)
+                      .json({ message: "Leave request approved successfully" });
+                  }
+                }
+              );
+            }
+          });
+        } else {
+          res.status(400).json({
+            error:
+              'Invalid action. Use "Approve" to approve the leave request.',
+          });
+        }
+      } else {
+        res.status(404).json({ error: "Leave request not found" });
       }
     });
   },

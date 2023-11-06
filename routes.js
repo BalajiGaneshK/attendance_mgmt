@@ -10,6 +10,7 @@ router.post("/login", controller.loginEmployee);
 router.post("/logout", controller.logoutEmployee);
 router.post("/applyLeave", controller.applyLeave);
 router.post("/viewPendingLeaves", controller.viewLeaveRequests);
+router.post("/approveLeave", controller.approveLeaveRequest);
 // Define other routes for class management, student management, attendance tracking, etc.
 
 module.exports = router;
