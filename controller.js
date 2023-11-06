@@ -75,7 +75,9 @@ module.exports = {
                 if (error) {
                   res.status(500).json({ error: "Failed to apply leave" });
                 } else {
-                  res.status(201).json({ message: "Leave applied successfully" });
+                  res
+                    .status(201)
+                    .json({ message: "Leave applied successfully" });
                 }
               }
             );
@@ -85,6 +87,18 @@ module.exports = {
         });
       } else {
         res.status(404).json({ error: "Employee not Registered yet" });
+      }
+    });
+  },
+  viewLeaveRequests: (req, res) => {
+    const { Manager_Id } = req.body;
+
+    // Query the Leave table for leave requests with the provided Manager_Id and Approval_Status = 'Pending'
+    dao.getPendingLeaveRequests(Manager_Id, (leaveRequests) => {
+      if (leaveRequests) {
+        res.status(200).json({ leaveRequests });
+      } else {
+        res.status(404).json({ error: "No pending leave requests found" });
       }
     });
   },

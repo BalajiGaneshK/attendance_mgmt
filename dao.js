@@ -86,7 +86,7 @@ module.exports = {
       if (err) {
         callback(0);
       } else {
-        console.log("LeaveBalance result:",result);
+        console.log("LeaveBalance result:", result);
         if (result) {
           callback(result[leaveBalanceColumn]);
         } else {
@@ -124,6 +124,22 @@ module.exports = {
         }
       }
     );
+  },
+  getPendingLeaveRequests: function (Manager_Id, callback) {
+    const query =
+      'SELECT * FROM Leave WHERE Manager_Id = ? AND Approval_Status = "Pending"';
+    db.all(query, [Manager_Id], (err, rows) => {
+      if (err) {
+        callback(null);
+      } else {
+        console.log("pending leaves:", rows);
+        if (rows) {
+          callback(rows);
+        } else {
+          callback(null);
+        }
+      }
+    });
   },
 
   // Export other database-related functions
