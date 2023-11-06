@@ -220,4 +220,39 @@ module.exports = {
       }
     });
   },
+  viewEmployeesOnLeave(req, res) {
+    const { Manager_Id } = req.body;
+
+    // Get the current date as the Viewing_Date
+    const currentDateTime = new Date();
+    const Viewing_Date = currentDateTime.toISOString().split("T")[0]; // Get the date part only
+
+    // Query the Leave table to retrieve approved leaves for employees managed by the provided Manager_Id
+    dao.getApprovedLeaves(Manager_Id, Viewing_Date, (approvedLeaves) => {
+      if (approvedLeaves && approvedLeaves.length > 0) {
+        // Extract Emp_Id values from the approved leave records
+        const empIds = approvedLeaves.map((leave) => leave.Emp_Id);
+
+        // Query the Employee table to retrieve employee names
+        dao.getEmployeeNames(empIds, (employeeNames) => {
+          if (employeeNames && employeeNames.length > 0) {
+            res.status(200).json(employeeNames);
+          } else {
+            res
+              .status(404)
+              .json({
+                error: "No employees found on leave on the specified date",
+              });
+          }
+        });
+      } else {
+        res
+          .status(404)
+          .json({
+            error:
+              "No approved leaves found for the provided Manager_Id and date",
+          });
+      }
+    });
+  },
 };

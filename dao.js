@@ -149,7 +149,11 @@ module.exports = {
   ) {
     // Implement the logic to update the total available leave balance
     const leaveBalanceColumn =
-      Leave_Type === "SL" ? "Total_Available_SL" : "Total_Available_PL";
+      Leave_Type === "SL"
+        ? "Total_Available_SL"
+        : Leave_Type === "CL"
+        ? "Total_Available_CL"
+        : "Total_Available_PL";
     const query = `UPDATE Employee SET ${leaveBalanceColumn} = ${leaveBalanceColumn} - ? WHERE Emp_Id = ?`;
 
     this.executeQuery(query, [numberOfLeaveDays, Emp_Id], (err) => {
@@ -234,6 +238,42 @@ module.exports = {
       AND Business_Date >= ?
     GROUP BY Emp_Id`;
     db.all(query, [Manager_Id, oneWeekAgo.toISOString()], (err, rows) => {
+      if (err) {
+        callback(null);
+      } else {
+        if (rows && rows.length > 0) {
+          callback(rows);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  },
+  getApprovedLeaves(Manager_Id, Viewing_Date, callback) {
+    const query = `
+    SELECT Emp_Id
+    FROM Leave
+    WHERE Manager_Id = ? AND Approval_Status = 'Approved'
+      AND ? >= Leave_Start_Date AND ? <= Leave_End_Date
+  `;
+    db.all(query, [Manager_Id, Viewing_Date, Viewing_Date], (err, rows) => {
+      if (err) {
+        callback(null);
+      } else {
+        if (rows && rows.length > 0) {
+          callback(rows);
+        } else {
+          callback(null);
+        }
+      }
+    });
+  },
+  getEmployeeNames(empIds, callback) {
+    const query =
+      "SELECT Emp_Id, Emp_Name FROM Employee WHERE Emp_Id IN (" +
+      empIds.map(() => "?").join(", ") +
+      ")";
+    db.all(query, empIds, (err, rows) => {
       if (err) {
         callback(null);
       } else {
